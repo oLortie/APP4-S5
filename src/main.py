@@ -22,18 +22,31 @@ def plotFreqz(num, den, title, Fe, displayAngle=True):
     return
 
 
-def filtre_transformation_bilineaire():
+def plotImage(image, title):
+    plt.gray()
+    plt.figure()
+    plt.imshow(image)
+    plt.title(title)
+
+
+def filtre_transformation_bilineaire(original_image):
     print("===== Filtrage par transformation bilinéaire =====")
+
     # Aucune idée si ce résultat là est bon, à vérifier
     num = [0.139, 0.139]
     den = [1, 0.649, 0.099]
 
     plotFreqz(num, den, "Réponse en fréquence du filtre par transformation bilinéaire", 1600)
 
-    return
+    # Filtrage de l'image
+    filtered_image = []
+    for i in range(len(original_image)):
+        filtered_image.append(signal.lfilter(num, den, original_image[i]))
+
+    return filtered_image
 
 
-def filtre_python():
+def filtre_python(original_image):
     print("===== Filtrage avec les fonction python =====")
 
     # filtre butterworth
@@ -57,13 +70,24 @@ def filtre_python():
 
     plotFreqz(num, den, "Réponse en fréquence du filtre Elliptique", 1600)
 
-    return
+    #Filtrage de l'image
+    filtered_image = []
+    for i in range(len(original_image)):
+        filtered_image.append(signal.lfilter(num, den, original_image[i]))
+
+    return filtered_image
 
 
 if __name__ == "__main__":
     print("Début du script...")
 
-    filtre_transformation_bilineaire()
-    filtre_python()
+    goldhill_noise = np.load('../goldhill_bruit.npy')
+    plotImage(goldhill_noise, "Image avec bruit")
+
+    filtered1 = filtre_transformation_bilineaire(goldhill_noise)
+    plotImage(filtered1, "Image filtrée avec la transformation bilinéaire")
+
+    filtered2 = filtre_python(goldhill_noise)
+    plotImage(filtered2, "Image filtrée avec les fonctions Python")
 
     plt.show()
