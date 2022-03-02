@@ -78,6 +78,33 @@ def filtre_python(original_image):
     return filtered_image
 
 
+def compression(image, percentage):
+    print("===== Compression de l'image =====")
+
+    # Matrice de covariance
+    cov = np.cov(image)
+
+    # Vecteurs propres
+    values, vectors = np.linalg.eig(cov)
+
+    # Matrice de passage
+    p_matrix = vectors
+    p_matrix_inv = np.linalg.inv(p_matrix)
+
+    # Compresser l'image
+    compressed_image = np.dot(image, p_matrix)
+
+    # Fixer à zéro
+    nb_lines = int(np.floor(percentage*len(image)))
+    for i in range(nb_lines):
+        compressed_image[len(compressed_image) - i - 1] = np.zeros(len(compressed_image[0]))
+
+    # Décompresser l'image
+    decompressed_image = np.dot(compressed_image, p_matrix_inv)
+
+    return decompressed_image
+
+
 if __name__ == "__main__":
     print("Début du script...")
 
@@ -89,5 +116,8 @@ if __name__ == "__main__":
 
     filtered2 = filtre_python(goldhill_noise)
     plotImage(filtered2, "Image filtrée avec les fonctions Python")
+
+    decompressed_image = compression(filtered2, 0.7)
+    plotImage(decompressed_image, "Image compressée et décompressée")
 
     plt.show()
