@@ -80,18 +80,22 @@ def rotation():
 def filtre_transformation_bilineaire(original_image):
     print("===== Filtrage par transformation bilinéaire =====")
 
-    # Aucune idée si ce résultat là est bon, à vérifier
+    # Version Oli: Aucune idée si ce résultat là est bon, à vérifier
     num = [0.139, 0.139]
     den = [1, 0.649, 0.099]
+
+    # Version Paul: ça marche pas du tout
+    # num = [0.02, 0.04, 0.02]
+    # den = [1, -1.64, 0.64]
 
     plotFreqz(num, den, "Réponse en fréquence du filtre par transformation bilinéaire", 1600)
 
     # Filtrage de l'image
-    filtered_image = []
-    for i in range(len(original_image)):
-        filtered_image.append(signal.lfilter(num, den, original_image[i]))
+    # filtered_image = []
+    # for i in range(len(original_image)):
+    #     filtered_image.append(signal.lfilter(num, den, original_image[i]))
 
-    return filtered_image
+    return signal.lfilter(num, den, original_image)
 
 
 def filtre_python(original_image):
@@ -118,12 +122,12 @@ def filtre_python(original_image):
 
     plotFreqz(num, den, "Réponse en fréquence du filtre Elliptique", 1600)
 
-    #Filtrage de l'image
-    filtered_image = []
-    for i in range(len(original_image)):
-        filtered_image.append(signal.lfilter(num, den, original_image[i]))
+    # Filtrage de l'image
+    # filtered_image = []
+    # for i in range(len(original_image)):
+    #     filtered_image.append(signal.lfilter(num, den, original_image[i]))
 
-    return filtered_image
+    return signal.lfilter(num, den, original_image)
 
 
 def compression(image, percentage):
