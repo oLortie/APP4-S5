@@ -5,44 +5,6 @@ from scipy import signal
 from src.zplane import zplane
 
 
-def aberrations():
-    numerateur = np.poly([0.9 * np.exp(1j * np.pi / 2), 0.9 * np.exp((-1) * 1j * np.pi / 2),
-                          0.95 * np.exp(1j * np.pi / 8), 0.95 * np.exp((-1) * 1j * np.pi / 8)])
-    denominateur = np.poly([0, -0.99, 0.8])
-
-    plt.figure()
-    zplane(numerateur, denominateur)
-
-    w, h = signal.freqz(numerateur, denominateur)
-
-    plt.figure()
-    plt.title('Filtre numérique pour les aberrations')
-    plt.plot(w, 20 * np.log10(abs(h)))
-    plt.ylabel('Amplitude [dB]')
-    plt.xlabel('Frequency [rad/sample]')
-
-    plt.gray()
-    img_load = np.load("../goldhill_aberrations.npy")
-    print(img_load)
-    image_sans_aberrations = signal.lfilter(denominateur, numerateur, img_load)
-
-    mpimg.imsave('../goldhill_avec_aberrations.png', img_load)
-    mpimg.imsave('../goldhill_sans_aberrations.png', image_sans_aberrations)
-
-
-def rotation():
-    plt.gray()
-    img_couleur = mpimg.imread('../goldhill_rotate.png')
-
-    # Inverser la taille des x et y
-    img_rotate = np.zeros((int(len(img_couleur[0])), int(len(img_couleur))))
-    for y in range(int(len(img_couleur))):
-        for x in range(int(len(img_couleur[0]))):
-            img_rotate[x][int(len(img_couleur)-1-y)] = img_couleur[y][x][0]  # Car l'image est en 3D? Voir l'array...
-
-    mpimg.imsave('../goldhill_avec_rotation.png', img_rotate)
-
-
 def plotFreqz(num, den, title, Fe, displayAngle=True):
     w, h = signal.freqz(num, den)
     fig, ax1 = plt.subplots()
@@ -67,6 +29,52 @@ def plotImage(image, title):
     plt.figure()
     plt.imshow(image)
     plt.title(title)
+
+
+def aberrations():
+    print("===== Annulation des aberrations =====")
+
+    numerateur = np.poly([0.9 * np.exp(1j * np.pi / 2), 0.9 * np.exp((-1) * 1j * np.pi / 2),
+                          0.95 * np.exp(1j * np.pi / 8), 0.95 * np.exp((-1) * 1j * np.pi / 8)])
+    denominateur = np.poly([0, -0.99, 0.8])
+
+    plt.figure()
+    zplane(numerateur, denominateur)
+
+    # plotFreqz(numerateur, denominateur, 'Filtre numérique pour les aberrations', ????, False)
+
+    w, h = signal.freqz(numerateur, denominateur)
+
+    plt.figure()
+    plt.title('Filtre numérique pour les aberrations')
+    plt.plot(w, 20 * np.log10(abs(h)))
+    plt.ylabel('Amplitude [dB]')
+    plt.xlabel('Frequency [rad/sample]')
+
+    plt.gray()
+    img_load = np.load("../goldhill_aberrations.npy")
+    image_sans_aberrations = signal.lfilter(denominateur, numerateur, img_load)
+
+    return img_load, image_sans_aberrations
+    # mpimg.imsave('../goldhill_avec_aberrations.png', img_load)
+    # mpimg.imsave('../goldhill_sans_aberrations.png', image_sans_aberrations)
+
+
+def rotation():
+    print("===== Rotation de 90 vers la droite =====")
+
+    plt.gray()
+    img_couleur = mpimg.imread('../goldhill_rotate.png')
+    img_couleur = np.mean(img_couleur, -1)  # Enlève la 3D
+
+    # Inverser la taille des x et y
+    img_rotate = np.zeros((int(len(img_couleur[0])), int(len(img_couleur))))
+    for y in range(int(len(img_couleur))):
+        for x in range(int(len(img_couleur[0]))):
+            img_rotate[x][int(len(img_couleur)-1-y)] = img_couleur[y][x]
+
+    return img_rotate
+    # mpimg.imsave('../goldhill_avec_rotation.png', img_rotate)
 
 
 def filtre_transformation_bilineaire(original_image):
@@ -146,10 +154,14 @@ def compression(image, percentage):
 
 
 if __name__ == "__main__":
-    # aberrations()
-    rotation()
-
     print("Début du script...")
+
+    img_with_aberrations, img_without_aberrations = aberrations()
+    plotImage(img_with_aberrations, 'Avec aberrations')
+    plotImage(img_without_aberrations, 'Sans aberrations')
+
+    img_rotated = rotation()
+    plotImage(img_rotated, 'Avec rotation de 90 degrés vers la droite')
 
     goldhill_noise = np.load('../goldhill_bruit.npy')
     plotImage(goldhill_noise, "Image avec bruit")
