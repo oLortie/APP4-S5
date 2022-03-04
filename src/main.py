@@ -80,9 +80,9 @@ def rotation():
 def filtre_transformation_bilineaire(original_image):
     print("===== Filtrage par transformation bilinéaire =====")
 
-    # Version Oli: Aucune idée si ce résultat là est bon, à vérifier
-    num = [0.139, 0.139]
-    den = [1, 0.649, 0.099]
+    # Version Oli: C'est good, ça fonctionne
+    num = [0.418, 0.837, 0.418]
+    den = [1, 0.463, 0.21]
 
     # Version Paul: ça marche pas du tout
     # num = [0.02, 0.04, 0.02]
