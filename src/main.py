@@ -69,9 +69,13 @@ def rotation():
 
     # Inverser la taille des x et y
     img_rotate = np.zeros((int(len(img_couleur[0])), int(len(img_couleur))))
+    # Matrice de rotation
+    rot_matrix = [[0, 1], [-1, 0]]
     for y in range(int(len(img_couleur))):
         for x in range(int(len(img_couleur[0]))):
-            img_rotate[x][int(len(img_couleur)-1-y)] = img_couleur[y][x]
+            [[new_x], [new_y]] = np.matmul(rot_matrix, [[x], [y]])
+            new_y += len(img_couleur) - 1
+            img_rotate[new_x][new_y] = img_couleur[x][y]
 
     return img_rotate
     # mpimg.imsave('../goldhill_avec_rotation.png', img_rotate)
@@ -176,7 +180,7 @@ if __name__ == "__main__":
     filtered2 = filtre_python(goldhill_noise)
     plotImage(filtered2, "Image filtrée avec les fonctions Python")
 
-    decompressed_image = compression(filtered2, 0.7)
+    decompressed_image = compression(filtered2, 0.5)
     plotImage(decompressed_image, "Image compressée et décompressée")
 
     plt.show()
