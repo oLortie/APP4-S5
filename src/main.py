@@ -36,7 +36,7 @@ def aberrations():
 
     numerateur = np.poly([0.9 * np.exp(1j * np.pi / 2), 0.9 * np.exp((-1) * 1j * np.pi / 2),
                           0.95 * np.exp(1j * np.pi / 8), 0.95 * np.exp((-1) * 1j * np.pi / 8)])
-    denominateur = np.poly([0, -0.99, 0.8])
+    denominateur = np.poly([0, -0.99, -0.99, 0.8])
 
     plt.figure()
     zplane(numerateur, denominateur)
@@ -148,7 +148,7 @@ def compression(image, percentage):
     p_matrix_inv = np.linalg.inv(p_matrix)
 
     # Compresser l'image
-    compressed_image = np.dot(image, p_matrix)
+    compressed_image = np.matmul(image, p_matrix)
 
     # Fixer à zéro
     nb_lines = int(np.floor(percentage*len(image)))
@@ -156,7 +156,7 @@ def compression(image, percentage):
         compressed_image[len(compressed_image) - i - 1] = np.zeros(len(compressed_image[0]))
 
     # Décompresser l'image
-    decompressed_image = np.dot(compressed_image, p_matrix_inv)
+    decompressed_image = np.matmul(compressed_image, p_matrix_inv)
 
     return decompressed_image
 
