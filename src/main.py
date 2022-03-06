@@ -36,7 +36,7 @@ def aberrations():
 
     numerateur = np.poly([0.9 * np.exp(1j * np.pi / 2), 0.9 * np.exp((-1) * 1j * np.pi / 2),
                           0.95 * np.exp(1j * np.pi / 8), 0.95 * np.exp((-1) * 1j * np.pi / 8)])
-    denominateur = np.poly([0, -0.99, 0.8])
+    denominateur = np.poly([0, -0.99, -0.99, 0.8])
 
     plt.figure()
     zplane(numerateur, denominateur)
@@ -158,7 +158,7 @@ def compression(image, percentage):
     # Décompresser l'image
     decompressed_image = np.dot(compressed_image, p_matrix_inv)
 
-    return decompressed_image
+    return decompressed_image, compressed_image
 
 
 if __name__ == "__main__":
@@ -180,7 +180,8 @@ if __name__ == "__main__":
     filtered2 = filtre_python(goldhill_noise)
     plotImage(filtered2, "Image filtrée avec les fonctions Python")
 
-    decompressed_image = compression(filtered2, 0.5)
+    decompressed_image, compressed_image = compression(filtered2, 0.5)
+    plotImage(compressed_image, "Image compressée")
     plotImage(decompressed_image, "Image compressée et décompressée")
 
     plt.show()
