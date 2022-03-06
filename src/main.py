@@ -31,78 +31,53 @@ def plotImage(image, title):
     plt.title(title)
 
 
-def aberrations():
-    print("===== Annulation des aberrations =====")
+def aberrations(img_with_aberrations):
+    print("===== Correction des aberrations =====")
 
-    numerateur = np.poly([0.9 * np.exp(1j * np.pi / 2), 0.9 * np.exp((-1) * 1j * np.pi / 2),
+    num = np.poly([0.9 * np.exp(1j * np.pi / 2), 0.9 * np.exp((-1) * 1j * np.pi / 2),
                           0.95 * np.exp(1j * np.pi / 8), 0.95 * np.exp((-1) * 1j * np.pi / 8)])
-    denominateur = np.poly([0, -0.99, -0.99, 0.8])
+    den = np.poly([0, -0.99, -0.99, 0.8])
 
     plt.figure()
-    zplane(numerateur, denominateur)
+    zplane(num, den)
 
-    # plotFreqz(numerateur, denominateur, 'Filtre numérique pour les aberrations', ????, False)
+    image_without_aberrations = signal.lfilter(den, num, img_with_aberrations)
 
-    w, h = signal.freqz(numerateur, denominateur)
-
-    plt.figure()
-    plt.title('Filtre numérique pour les aberrations')
-    plt.plot(w, 20 * np.log10(abs(h)))
-    plt.ylabel('Amplitude [dB]')
-    plt.xlabel('Frequency [rad/sample]')
-
-    plt.gray()
-    img_load = np.load("../goldhill_aberrations.npy")
-    image_sans_aberrations = signal.lfilter(denominateur, numerateur, img_load)
-
-    return img_load, image_sans_aberrations
-    # mpimg.imsave('../goldhill_avec_aberrations.png', img_load)
-    # mpimg.imsave('../goldhill_sans_aberrations.png', image_sans_aberrations)
+    return image_without_aberrations
 
 
-def rotation():
+def rotation(img_with_rotation):
     print("===== Rotation de 90 vers la droite =====")
 
-    plt.gray()
-    img_couleur = mpimg.imread('../goldhill_rotate.png')
-    img_couleur = np.mean(img_couleur, -1)  # Enlève la 3D
-
     # Inverser la taille des x et y
-    img_rotate = np.zeros((int(len(img_couleur[0])), int(len(img_couleur))))
+    img_without_rotation = np.zeros((int(len(img_with_rotation[0])), int(len(img_with_rotation))))
+
     # Matrice de rotation
     rot_matrix = [[0, 1], [-1, 0]]
-    for y in range(int(len(img_couleur))):
-        for x in range(int(len(img_couleur[0]))):
+    for y in range(int(len(img_with_rotation))):
+        for x in range(int(len(img_with_rotation[0]))):
             [[new_x], [new_y]] = np.matmul(rot_matrix, [[x], [y]])
-            new_y += len(img_couleur) - 1
-            img_rotate[new_x][new_y] = img_couleur[x][y]
+            new_y += len(img_with_rotation) - 1
+            img_without_rotation[new_x][new_y] = img_with_rotation[x][y]
 
-    return img_rotate
-    # mpimg.imsave('../goldhill_avec_rotation.png', img_rotate)
+    return img_without_rotation
 
 
-def filtre_transformation_bilineaire(original_image):
+def filtre_transformation_bilineaire(img_with_noise):
     print("===== Filtrage par transformation bilinéaire =====")
 
-    # Version Oli: C'est good, ça fonctionne
     num = [0.418, 0.837, 0.418]
     den = [1, 0.463, 0.21]
 
-    # Version Paul: ça marche pas du tout
-    # num = [0.02, 0.04, 0.02]
-    # den = [1, -1.64, 0.64]
+    plt.figure()
+    zplane(num, den)
 
     plotFreqz(num, den, "Réponse en fréquence du filtre par transformation bilinéaire", 1600)
 
-    # Filtrage de l'image
-    # filtered_image = []
-    # for i in range(len(original_image)):
-    #     filtered_image.append(signal.lfilter(num, den, original_image[i]))
-
-    return signal.lfilter(num, den, original_image)
+    return signal.lfilter(num, den, img_with_noise)
 
 
-def filtre_python(original_image):
+def filtre_python(img_with_noise):
     print("===== Filtrage avec les fonction python =====")
 
     # filtre butterworth
@@ -124,14 +99,12 @@ def filtre_python(original_image):
     # Le filtre elliptique est celui ayant le plus petit ordre, on fait donc un filtre elliptique
     num, den = signal.ellip(N=order_ellip, rp=0.1, rs=60, Wn=500, btype='lowpass', analog=False, output='ba', fs=1600)
 
+    plt.figure()
+    zplane(num, den)
+
     plotFreqz(num, den, "Réponse en fréquence du filtre Elliptique", 1600)
 
-    # Filtrage de l'image
-    # filtered_image = []
-    # for i in range(len(original_image)):
-    #     filtered_image.append(signal.lfilter(num, den, original_image[i]))
-
-    return signal.lfilter(num, den, original_image)
+    return signal.lfilter(num, den, img_with_noise)
 
 
 def compression(image, percentage):
@@ -164,22 +137,27 @@ def compression(image, percentage):
 if __name__ == "__main__":
     print("Début du script...")
 
-    img_with_aberrations, img_without_aberrations = aberrations()
+    # Aberrations
+    img_with_aberrations = np.load("../goldhill_aberrations.npy")
+    img_without_aberrations = aberrations(img_with_aberrations)
     plotImage(img_with_aberrations, 'Avec aberrations')
     plotImage(img_without_aberrations, 'Sans aberrations')
 
-    img_rotated = rotation()
-    plotImage(img_rotated, 'Avec rotation de 90 degrés vers la droite')
+    # Rotation
+    img_with_rotation = mpimg.imread('../goldhill_rotate.png')
+    img_with_rotation = np.mean(img_with_rotation, -1)  # Enlève la 3D
+    img_without_rotation = rotation(img_with_rotation)
+    plotImage(img_with_rotation, 'Sans rotation')
+    plotImage(img_without_rotation, 'Avec rotation de 90 degrés vers la droite')
 
-    goldhill_noise = np.load('../goldhill_bruit.npy')
-    plotImage(goldhill_noise, "Image avec bruit")
-
-    filtered1 = filtre_transformation_bilineaire(goldhill_noise)
+    # Debruitage de l'image
+    img_with_noise = np.load('../goldhill_bruit.npy')
+    filtered1 = filtre_transformation_bilineaire(img_with_noise)
     plotImage(filtered1, "Image filtrée avec la transformation bilinéaire")
-
-    filtered2 = filtre_python(goldhill_noise)
+    filtered2 = filtre_python(img_with_noise)
     plotImage(filtered2, "Image filtrée avec les fonctions Python")
 
+    # Compression
     decompressed_image, compressed_image = compression(filtered2, 0.5)
     plotImage(compressed_image, "Image compressée")
     plotImage(decompressed_image, "Image compressée et décompressée")
