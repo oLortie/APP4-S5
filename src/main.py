@@ -177,7 +177,9 @@ if __name__ == "__main__":
     complete_image = filtre_python(complete_image)
     plotImage(complete_image, 'Image sans le bruit')
     # Compression
-    complete_image, compressed_image = compression(complete_image, 0.5)
-    plotImage(complete_image, "Image décompressée")
+    decompressed_image_50, compressed_image_50 = compression(complete_image, 0.5)
+    decompressed_image_70, compressed_image_70 = compression(complete_image, 0.7)
+    plotImage(decompressed_image_50, "Image décompressée 50%")
+    plotImage(decompressed_image_70, "Image décompressée 70%")
 
     plt.show()
