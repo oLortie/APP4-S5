@@ -135,29 +135,29 @@ def compression(image, percentage):
 
 
 if __name__ == "__main__":
-    print("Début du script...")
+    # Séquence cas par cas
 
-    # Aberrations
+    # # Aberrations
     # img_with_aberrations = np.load("../goldhill_aberrations.npy")
     # img_without_aberrations = aberrations(img_with_aberrations)
     # plotImage(img_with_aberrations, 'Avec aberrations')
     # plotImage(img_without_aberrations, 'Sans aberrations')
-
-    # Rotation
+    #
+    # # Rotation
     # img_with_rotation = mpimg.imread('../goldhill_rotate.png')
     # img_with_rotation = np.mean(img_with_rotation, -1)  # Enlève la 3D
     # img_without_rotation = rotation(img_with_rotation)
     # plotImage(img_with_rotation, 'Sans rotation')
     # plotImage(img_without_rotation, 'Avec rotation de 90 degrés vers la droite')
-
-    # Debruitage de l'image
+    #
+    # # Debruitage de l'image
     # img_with_noise = np.load('../goldhill_bruit.npy')
     # filtered1 = filtre_transformation_bilineaire(img_with_noise)
     # plotImage(filtered1, "Image filtrée avec la transformation bilinéaire")
     # filtered2 = filtre_python(img_with_noise)
     # plotImage(filtered2, "Image filtrée avec les fonctions Python")
-
-    # Compression
+    #
+    # # Compression
     # image = mpimg.imread('../goldhill.png')
     # decompressed_image_50, compressed_image_50 = compression(image, 0.5)
     # decompressed_image_70, compressed_image_70 = compression(image, 0.7)
@@ -166,16 +166,23 @@ if __name__ == "__main__":
 
     # Séquence complète
     complete_image = np.load('../image_complete.npy')
+
     # Aberrations
     plotImage(complete_image, 'Avec aberrations')
     complete_image = aberrations(complete_image)
     plotImage(complete_image, 'Sans aberrations')
-    #Rotation
+
+    # Rotation
     complete_image = rotation(complete_image)
     plotImage(complete_image, 'Avec rotation de 90 degrés vers la droite')
+
     # Débruitage
+    complete_image_1 = complete_image
+    complete_image_1 = filtre_transformation_bilineaire(complete_image_1)
+    plotImage(complete_image_1, 'Image sans le bruit avec la transformation bilinéaire')
     complete_image = filtre_python(complete_image)
-    plotImage(complete_image, 'Image sans le bruit')
+    plotImage(complete_image, 'Image sans le bruit avec les fonctions python')
+
     # Compression
     decompressed_image_50, compressed_image_50 = compression(complete_image, 0.5)
     decompressed_image_70, compressed_image_70 = compression(complete_image, 0.7)
