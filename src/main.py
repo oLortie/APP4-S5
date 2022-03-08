@@ -1,3 +1,10 @@
+################################################
+# Date 8 mars 2022
+# Titre du fichier: main.py
+# Auteurs: Paul du Réau de la Gaignonnière et Olivier Lortie
+# CIP: durp0701 et loro0801
+################################################
+
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,8 +32,8 @@ def plotFreqz(num, den, title, Fe, displayAngle=True):
 
 
 def plotImage(image, title):
-    plt.gray()
     plt.figure()
+    plt.gray()
     plt.imshow(image)
     plt.title(title)
 
@@ -165,12 +172,13 @@ if __name__ == "__main__":
     # plotImage(decompressed_image_70, "Image décompressée avec 70%")
 
     # Séquence complète
+
     complete_image = np.load('../image_complete.npy')
 
     # Aberrations
     plotImage(complete_image, 'Avec aberrations')
     complete_image = aberrations(complete_image)
-    plotImage(complete_image, 'Sans aberrations')
+    plotImage(complete_image, 'Sans aberrations et sans rotation')
 
     # Rotation
     complete_image = rotation(complete_image)
